@@ -309,6 +309,13 @@ ServiceFabricBackup/
 *.ldf
 *.ndf
 
+# images
+*.png
+*.jpeg
+*.jpg
+*.pdf
+*.tiff
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout
@@ -396,3 +403,8 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+
+# tensorflow model
+*.pb
+*.meta
+checkpoint/

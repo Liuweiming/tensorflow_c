@@ -2,8 +2,8 @@
 // Created by sergio on 12/05/19.
 //
 
-#ifndef CPPFLOW_MODEL_H
-#define CPPFLOW_MODEL_H
+#ifndef TENSORFLOW_C_MODEL_H
+#define TENSORFLOW_C_MODEL_H
 
 #include <tensorflow/c/c_api.h>
 
@@ -15,17 +15,13 @@
 #include <tuple>
 #include <vector>
 
-#include "tensor.h"
-
+namespace tf_cpp {
 class Tensor;
 
 class Model {
  public:
   explicit Model(const std::string&);
 
-  // Rule of five, moving is easy as the pointers can be copied, copying not as
-  // i have no idea how to copy the contents of the pointer (i guess
-  // dereferencing won't do a deep copy)
   Model(const Model& model) = delete;
   Model(Model&& model) = default;
   Model& operator=(const Model& model) = delete;
@@ -33,7 +29,6 @@ class Model {
 
   ~Model();
 
-  void init();
   void restore(const std::string& ckpt);
   void save(const std::string& ckpt);
   std::vector<std::string> get_operations() const;
@@ -53,9 +48,10 @@ class Model {
   void run(Tensor* input, Tensor* output);
 
  private:
-  TF_Graph* graph;
-  TF_Session* session;
   TF_Status* status;
+  TF_Graph* graph;
+  TF_SessionOptions* opts;
+  TF_Session* session;
 
   // Read a file from a string
   static TF_Buffer* read(const std::string&);
@@ -66,5 +62,5 @@ class Model {
  public:
   friend class Tensor;
 };
-
-#endif  // CPPFLOW_MODEL_H
+}  // namespace tf_cpp
+#endif  // TENSORFLOW_C_MODEL_H
