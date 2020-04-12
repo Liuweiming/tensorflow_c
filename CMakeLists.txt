@@ -12,10 +12,8 @@ add_library(tensorflow_c OBJECT
 target_include_directories(tensorflow_c PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 link_libraries(tensorflow)
 
-add_executable(hello_tf hello_tf.cc
-    $<TARGET_OBJECTS:tensorflow_c>)
-
 # examples
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(examples/load_model)
 add_subdirectory(examples/mnist)
+add_subdirectory(test)
