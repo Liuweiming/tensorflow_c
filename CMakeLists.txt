@@ -18,3 +18,4 @@ add_executable(hello_tf hello_tf.cc
 # examples
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(examples/load_model)
+add_subdirectory(examples/mnist)
