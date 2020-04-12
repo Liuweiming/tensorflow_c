@@ -94,6 +94,8 @@ void DeleteTensor(TF_Tensor* tensor);
 
 void DeleteTensors(const std::vector<TF_Tensor*>& tensors);
 
+TF_Tensor* CopyTensor(TF_Tensor* tensor);
+
 bool SetTensorData(TF_Tensor* tensor, const void* data, std::size_t len);
 
 template <typename T>

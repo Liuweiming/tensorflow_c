@@ -369,6 +369,19 @@ void DeleteTensors(const std::vector<TF_Tensor*>& tensors) {
   }
 }
 
+TF_Tensor* CopyTensor(TF_Tensor* tensor) {
+  int n_dims = TF_NumDims(tensor);
+  int64_t* dims = nullptr;
+  if (n_dims > 0) {
+    dims = new int64_t[n_dims];
+    for (int i = 0; i < n_dims; i++) {
+      dims[i] = TF_Dim(tensor, i);
+    }
+  }
+  return CreateTensor(TF_TensorType(tensor), dims, n_dims,
+                      TF_TensorData(tensor), TF_TensorByteSize(tensor));
+}
+
 bool SetTensorData(TF_Tensor* tensor, const void* data, std::size_t len) {
   auto tensor_data = TF_TensorData(tensor);
   len = std::min(len, TF_TensorByteSize(tensor));

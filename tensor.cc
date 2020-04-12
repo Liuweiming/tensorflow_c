@@ -14,10 +14,8 @@
 
 namespace tf_cpp {
 Tensor::Tensor(const Model &model, const std::string &oper_name)
-    : status(nullptr), tf_tensor(nullptr), dims(nullptr) {
+    : status(nullptr), tf_tensor(nullptr), data_size(0) {
   status = TF_NewStatus();
-  dims = new int64_t[MAX_DIMS];
-  std::memset(dims, 0, MAX_DIMS * sizeof(int64_t));
   auto tf_code = tf_utils::GetTGraphOperation(
       model.graph, oper_name.c_str(), &op, &type, &n_dims, dims, status);
   if (tf_code != TF_OK) {
@@ -34,9 +32,6 @@ Tensor::~Tensor() {
   if (status != nullptr) {
     TF_DeleteStatus(status);
   }
-  if (dims != nullptr) {
-    delete[] dims;
-  }
 }
 
 void Tensor::set_tensor(TF_Tensor *new_tensor) {
@@ -52,8 +47,8 @@ void Tensor::set_tensor(TF_Tensor *new_tensor) {
     actual_shape.clear();
     return;
   }
-  // new_tensors can be saftly deleted after move.
-  tf_tensor = TF_TensorMaybeMove(new_tensor);
+  // new_tensors must not be deleted.
+  tf_tensor = new_tensor;
   if (tf_tensor == nullptr) {
     throw std::runtime_error("TF_TensorMaybeMove error");
   }

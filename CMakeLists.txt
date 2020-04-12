@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(TensorflowC)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+# set(CMAKE_VERBOSE_MAKEFILE ON)
 set (CMAKE_CXX_FLAGS "-Wno-everything")
 
 add_library(tensorflow_c OBJECT
@@ -14,6 +14,7 @@ link_libraries(tensorflow)
 
 add_executable(hello_tf hello_tf.cc
     $<TARGET_OBJECTS:tensorflow_c>)
+
+# examples
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-message(${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(examples/load_model)

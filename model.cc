@@ -13,7 +13,7 @@ Model::Model(const std::string& model_filename)
     : status(nullptr), graph(nullptr), opts(nullptr), session(nullptr) {
   status = TF_NewStatus();
   graph = tf_utils::LoadGraph(model_filename.c_str(), status);
-  if (opts == nullptr) {
+  if (graph == nullptr) {
     throw std::runtime_error("tf_utils::LoadGraph error");
   }
 
@@ -90,12 +90,10 @@ void Model::run(const std::vector<Tensor*>& inputs,
   std::vector<TF_Tensor*> ov(outputs.size());
 
   auto tf_code = tf_utils::RunSession(session, io, iv, oo, ov, status);
-  // Save results on outputs and mark as full
+  // Save results on outputs
+  // must not delete ov, as it will be used by outputs.
   for (std::size_t i = 0; i < outputs.size(); i++) {
     outputs[i]->set_tensor(ov[i]);
-    if (ov[i] != nullptr) {
-      TF_DeleteTensor(ov[i]);
-    }
   }
 }
 

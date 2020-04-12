@@ -34,6 +34,29 @@ class Tensor {
 
   ~Tensor();
 
+  // set tf_tensor from new_data.
+  // new_data should be compatible with the shape of tf_tensor.
+  template <typename T>
+  void set_data(const std::vector<T> &new_data, bool reset = false) {
+    // If it is the first time to call set_data, i.e., tf_tensor is nullptr,
+    // try to create a tensor by create_tensor. May recreate the tensor if the
+    // user wants. It is recreated if the data_size is changed, because of, for
+    // example, the batch size is changed.
+    if (tf_tensor == nullptr || reset || new_data.size() != data_size) {
+      create_tensor<T>(new_data);
+    } else {
+      tf_utils::SetTensorData<T>(tf_tensor, new_data);
+    }
+  }
+
+  template <typename T>
+  std::vector<T> get_data() {
+    return tf_utils::GetTensorData<T>(tf_tensor);
+  }
+
+  std::vector<int64_t> get_shape();
+
+ private:
   // create tf_tensor, should be called only once.
   // could be called to reset the shape of tf_tensor.
   template <typename T>
@@ -41,6 +64,7 @@ class Tensor {
     if (tf_tensor != nullptr) {
       TF_DeleteTensor(tf_tensor);
     }
+    data_size = new_data.size();
     // calcualate actual_shape based on new_data.
     auto exp_size = std::abs(std::accumulate(shape.begin(), shape.end(), 1,
                                              std::multiplies<int64_t>()));
@@ -53,24 +77,11 @@ class Tensor {
       throw std::runtime_error("tf_utils::CreateTensor error");
     }
   }
-
+  
   // set tf_tensor from new_tensor.
   // useful for accessing data from session out.
+  // should only be called by Model.
   void set_tensor(TF_Tensor *new_tensor);
-
-  // set tf_tensor from new_data.
-  // new_data should be compatible with the shape of tf_tensor.
-  template <typename T>
-  void set_data(const std::vector<T> &new_data) {
-    tf_utils::SetTensorData<T>(tf_tensor, new_data);
-  }
-
-  template <typename T>
-  std::vector<T> get_data() {
-    return tf_utils::GetTensorData<T>(tf_tensor);
-  }
-
-  std::vector<int64_t> get_shape();
 
  private:
   TF_Status *status;
@@ -78,7 +89,8 @@ class Tensor {
   TF_Output op;
   TF_DataType type;
   int n_dims;
-  int64_t *dims;
+  int64_t dims[MAX_DIMS];
+  size_t data_size;
   std::vector<int64_t> shape;
   std::vector<int64_t> actual_shape;
 
