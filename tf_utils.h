@@ -102,11 +102,13 @@ TF_Tensor* CopyTensor(TF_Tensor* tensor);
 
 bool SetTensorData(TF_Tensor* tensor, const void* data, std::size_t len);
 
+// the user needs to guarantee that tensor's data type is the same as T.
 template <typename T>
 void SetTensorData(TF_Tensor* tensor, const std::vector<T>& data) {
   SetTensorData(tensor, data.data(), data.size() * sizeof(T));
 }
 
+// the user needs to guarantee that tensors's data tyep is the same as T.
 template <typename T>
 std::vector<T> GetTensorData(const TF_Tensor* const& tensor) {
   if (tensor == nullptr) {
@@ -120,6 +122,12 @@ std::vector<T> GetTensorData(const TF_Tensor* const& tensor) {
   }
 
   return {data, data + size};
+}
+
+template <typename T>
+void GetTensorData(const TF_Tensor* const& tensor,
+                   std::vector<T>& return_tensors) {
+  return_tensors = GetTensorData<T>(tensor);
 }
 
 template <typename T>

@@ -3,11 +3,69 @@
 //
 
 #include "model.h"
-
-#include "tensor.h"
 #include "tf_utils.h"
 
 namespace tf_cpp {
+
+Tensor::Tensor(TF_Graph* graph, const std::string& oper_name)
+    : status(nullptr), tf_tensor(nullptr), data_size(0) {
+  status = TF_NewStatus();
+  auto tf_code = tf_utils::GetTGraphOperation(graph, oper_name.c_str(), &op,
+                                              &type, &n_dims, dims, status);
+  if (tf_code != TF_OK) {
+    throw std::runtime_error("tf_utils::GetTGraphOperation error.");
+  }
+  shape = std::vector<int64_t>(dims, dims + n_dims);
+  tf_tensor = nullptr;
+}
+
+Tensor::~Tensor() {
+  if (tf_tensor != nullptr) {
+    TF_DeleteTensor(tf_tensor);
+  }
+  if (status != nullptr) {
+    TF_DeleteStatus(status);
+  }
+}
+
+void Tensor::set_tensor(TF_Tensor* new_tensor) {
+  if (tf_tensor != nullptr) {
+    TF_DeleteTensor(tf_tensor);
+  }
+  // some operations may have null tensor.
+  // for example, the training_op.
+  if (new_tensor == nullptr) {
+    tf_tensor = nullptr;
+    n_dims = 0;
+    shape.clear();
+    actual_shape.clear();
+    return;
+  }
+  // new_tensors must not be deleted.
+  tf_tensor = new_tensor;
+  if (tf_tensor == nullptr) {
+    throw std::runtime_error("TF_TensorMaybeMove error");
+  }
+  // op should not be modified.
+  // set type.
+  type = TF_TensorType(tf_tensor);
+  // set n_dims, dims and shape.
+  int n_dims = TF_NumDims(tf_tensor);
+  if (n_dims < 0 || n_dims > MAX_DIMS) {
+    throw std::runtime_error("TF_NumDims error");
+  }
+  shape.clear();
+  if (n_dims > 0) {
+    shape.reserve(n_dims);
+    for (int i = 0; i < n_dims; i++) {
+      dims[i] = TF_Dim(tf_tensor, i);
+      shape[i] = dims[i];
+    }
+    actual_shape = shape;
+  }
+}
+
+std::vector<int64_t> Tensor::get_shape() { return shape; }
 
 Model::Model(const std::string& model_filename)
     : status(nullptr), graph(nullptr), opts(nullptr), session(nullptr) {
@@ -69,41 +127,4 @@ std::vector<std::string> Model::get_operations() const {
   return result;
 }
 
-void Model::run(const std::vector<Tensor*>& inputs,
-                const std::vector<Tensor*>& outputs,
-                const std::vector<TF_Operation*>& operations) {
-  // Get input operations
-  std::vector<TF_Output> io(inputs.size());
-  std::transform(inputs.begin(), inputs.end(), io.begin(),
-                 [](const Tensor* i) { return i->op; });
-
-  // Get input values
-  std::vector<TF_Tensor*> iv(inputs.size());
-  std::transform(inputs.begin(), inputs.end(), iv.begin(),
-                 [](const Tensor* i) { return i->tf_tensor; });
-
-  // Get output operations
-  std::vector<TF_Output> oo(outputs.size());
-  std::transform(outputs.begin(), outputs.end(), oo.begin(),
-                 [](const Tensor* o) { return o->op; });
-
-  // Get output values
-  std::vector<TF_Tensor*> ov(outputs.size());
-  auto tf_code =
-      tf_utils::RunSession(session, io, iv, oo, ov, operations, status);
-  if (tf_code != TF_OK) {
-    throw std::runtime_error(tf_utils::CodeToString(tf_code));
-  }
-  // Save results on outputs
-  // must not delete ov, as it will be used by outputs.
-  for (std::size_t i = 0; i < outputs.size(); i++) {
-    outputs[i]->set_tensor(ov[i]);
-  }
-}
-
-void Model::error_check(bool condition, const std::string& error) const {
-  if (!condition) {
-    throw std::runtime_error(error);
-  }
-}
 }  // namespace tf_cpp
