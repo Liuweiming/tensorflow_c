@@ -14,6 +14,7 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 #include "tf_utils.h"
@@ -42,6 +43,11 @@ class Tensor {
     // try to create a tensor by create_tensor. May recreate the tensor if the
     // user wants. It is recreated if the data_size is changed, because of, for
     // example, the batch size is changed.
+    if (deduce_type<T>() != type) {
+      throw std::runtime_error(
+          std::string("data type is incompatible with TF_Tensor type. [") +
+          typeid(T).name() + " vs. " + tf_utils::DataTypeToString(type) + "]");
+    };
     if (tf_tensor == nullptr || reset || new_data.size() != data_size) {
       create_tensor<T>(new_data);
     } else {
@@ -51,6 +57,11 @@ class Tensor {
 
   template <typename T>
   std::vector<T> get_data() {
+    if (deduce_type<T>() != type) {
+      throw std::runtime_error(
+          std::string("data type is incompatible with TF_Tensor type. [") +
+          typeid(T).name() + " vs. " + tf_utils::DataTypeToString(type) + "]");
+    };
     return tf_utils::GetTensorData<T>(tf_tensor);
   }
 
@@ -80,6 +91,24 @@ class Tensor {
     if (tf_tensor == nullptr) {
       throw std::runtime_error("tf_utils::CreateTensor error");
     }
+  }
+
+  template <typename T>
+  TF_DataType deduce_type() {
+    // we don't support bool type, please do not use TF_BOOL in tensorflow.
+    // (std::is_same<T, bool>::value) return TF_BOOL;
+    if (std::is_same<T, float>::value) return TF_FLOAT;
+    if (std::is_same<T, double>::value) return TF_DOUBLE;
+    if (std::is_same<T, int8_t>::value) return TF_INT8;
+    if (std::is_same<T, int16_t>::value) return TF_INT16;
+    if (std::is_same<T, int32_t>::value) return TF_INT32;
+    if (std::is_same<T, int64_t>::value) return TF_INT64;
+    if (std::is_same<T, uint8_t>::value) return TF_UINT8;
+    if (std::is_same<T, uint16_t>::value) return TF_UINT16;
+    if (std::is_same<T, uint32_t>::value) return TF_UINT32;
+    if (std::is_same<T, uint64_t>::value) return TF_UINT64;
+
+    throw std::runtime_error{"Could not deduce type!"};
   }
 
   // set tf_tensor from new_tensor.

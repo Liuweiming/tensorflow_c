@@ -522,7 +522,7 @@ void DeleteSessionOptions(TF_SessionOptions* options) {
   }
 }
 
-const char* DataTypeToString(TF_DataType data_type) {
+std::string DataTypeToString(TF_DataType data_type) {
   switch (data_type) {
     case TF_FLOAT:
       return "TF_FLOAT";
@@ -575,7 +575,7 @@ const char* DataTypeToString(TF_DataType data_type) {
   }
 }
 
-const char* CodeToString(TF_Code code) {
+std::string CodeToString(TF_Code code) {
   switch (code) {
     case TF_OK:
       return "TF_OK";

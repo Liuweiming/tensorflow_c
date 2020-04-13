@@ -39,6 +39,8 @@ class Model {
            const std::vector<Tensor*>& outputs,
            const std::vector<TF_Operation*>& operations = {});
 
+  void run_operation(TF_Operation* op) { run({}, {}, {op}); }
+
  private:
   TF_Status* status;
   TF_Graph* graph;

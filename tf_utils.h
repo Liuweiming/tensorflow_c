@@ -153,9 +153,9 @@ TF_SessionOptions* CreateSessionOptions(
 
 void DeleteSessionOptions(TF_SessionOptions* options);
 
-const char* DataTypeToString(TF_DataType data_type);
+std::string DataTypeToString(TF_DataType data_type);
 
-const char* CodeToString(TF_Code code);
+std::string CodeToString(TF_Code code);
 
 }  // namespace tf_utils
 

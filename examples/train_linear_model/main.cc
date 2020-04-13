@@ -27,7 +27,7 @@ int main() {
   Tensor predict{model.get_graph(), "output"};
   Tensor loss{model.get_graph(), "loss"};
 
-  model.run({}, {}, {init});
+  model.run_operation(init);
 
   int bs = 3;
   std::vector<float> train_inputs(bs);
@@ -48,7 +48,7 @@ int main() {
     std::cout << f << " ";
   }
 
-  for (int iter = 0; iter != 1000; ++iter) {
+  for (int iter = 0; iter != 10; ++iter) {
     std::cout << "iteration " << iter << std::endl;
     model.run({&input, &label}, {&predict, &loss}, {train});
     float train_loss = loss.get_data<float>()[0];
