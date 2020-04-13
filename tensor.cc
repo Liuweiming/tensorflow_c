@@ -13,11 +13,12 @@
 #include "tf_utils.h"
 
 namespace tf_cpp {
-Tensor::Tensor(const Model &model, const std::string &oper_name)
+
+Tensor::Tensor(TF_Graph *graph, const std::string &oper_name)
     : status(nullptr), tf_tensor(nullptr), data_size(0) {
   status = TF_NewStatus();
-  auto tf_code = tf_utils::GetTGraphOperation(
-      model.graph, oper_name.c_str(), &op, &type, &n_dims, dims, status);
+  auto tf_code = tf_utils::GetTGraphOperation(graph, oper_name.c_str(), &op,
+                                              &type, &n_dims, dims, status);
   if (tf_code != TF_OK) {
     throw std::runtime_error("tf_utils::GetTGraphOperation error.");
   }
@@ -57,7 +58,7 @@ void Tensor::set_tensor(TF_Tensor *new_tensor) {
   type = TF_TensorType(tf_tensor);
   // set n_dims, dims and shape.
   int n_dims = TF_NumDims(tf_tensor);
-  if (n_dims <= 0 || n_dims > MAX_DIMS) {
+  if (n_dims < 0 || n_dims > MAX_DIMS) {
     throw std::runtime_error("TF_NumDims error");
   }
   shape.clear();

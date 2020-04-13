@@ -13,9 +13,15 @@ using namespace tf_cpp;
 int main() {
   Model model("load_model.pb");
 
-  Tensor input_a{model, "input_a"};
-  Tensor input_b{model, "input_b"};
-  Tensor output{model, "result"};
+  std::cout << "operations: -----------" << std::endl;
+  for (auto &op : model.get_operations()) {
+    std::cout << op << std::endl;
+  }
+  std::cout << "-------------------" << std::endl;
+
+  Tensor input_a{model.get_graph(), "input_a"};
+  Tensor input_b{model.get_graph(), "input_b"};
+  Tensor output{model.get_graph(), "result"};
 
   std::vector<float> data(100);
   std::iota(data.begin(), data.end(), 0);
@@ -23,7 +29,7 @@ int main() {
   input_a.set_data(data);
   input_b.set_data(data);
 
-  model.run({&input_a, &input_b}, output);
+  model.run({&input_a, &input_b}, {&output});
   for (float f : output.get_data<float>()) {
     std::cout << f << " ";
   }

@@ -29,23 +29,15 @@ class Model {
 
   ~Model();
 
+  TF_Graph* get_graph() { return graph; }
   void restore(const std::string& ckpt);
   void save(const std::string& ckpt);
   std::vector<std::string> get_operations() const;
 
   // Original Run
   void run(const std::vector<Tensor*>& inputs,
-           const std::vector<Tensor*>& outputs);
-
-  // Run with references
-  void run(Tensor& input, const std::vector<Tensor*>& outputs);
-  void run(const std::vector<Tensor*>& inputs, Tensor& output);
-  void run(Tensor& input, Tensor& output);
-
-  // Run with pointers
-  void run(Tensor* input, const std::vector<Tensor*>& outputs);
-  void run(const std::vector<Tensor*>& inputs, Tensor* output);
-  void run(Tensor* input, Tensor* output);
+           const std::vector<Tensor*>& outputs,
+           const std::vector<TF_Operation*>& operations = {});
 
  private:
   TF_Status* status;

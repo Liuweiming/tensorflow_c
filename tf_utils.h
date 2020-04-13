@@ -36,6 +36,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <vector>
 
 namespace tf_utils {
@@ -63,12 +64,15 @@ TF_Code DeleteSession(TF_Session* session, TF_Status* status = nullptr);
 TF_Code RunSession(TF_Session* session, const TF_Output* inputs,
                    TF_Tensor* const* input_tensors, std::size_t ninputs,
                    const TF_Output* outputs, TF_Tensor** output_tensors,
-                   std::size_t noutputs, TF_Status* status = nullptr);
+                   std::size_t noutputs,
+                   TF_Operation* const* operations = nullptr,
+                   std::size_t noperations = 0, TF_Status* status = nullptr);
 
 TF_Code RunSession(TF_Session* session, const std::vector<TF_Output>& inputs,
                    const std::vector<TF_Tensor*>& input_tensors,
                    const std::vector<TF_Output>& outputs,
                    std::vector<TF_Tensor*>& output_tensors,
+                   const std::vector<TF_Operation*>& operations = {},
                    TF_Status* status = nullptr);
 
 TF_Tensor* CreateTensor(TF_DataType data_type, const std::int64_t* dims,

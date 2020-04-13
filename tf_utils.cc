@@ -281,19 +281,14 @@ TF_Code DeleteSession(TF_Session* session, TF_Status* status) {
 TF_Code RunSession(TF_Session* session, const TF_Output* inputs,
                    TF_Tensor* const* input_tensors, std::size_t ninputs,
                    const TF_Output* outputs, TF_Tensor** output_tensors,
-                   std::size_t noutputs, TF_Status* status) {
-  if (session == nullptr || inputs == nullptr || input_tensors == nullptr ||
-      outputs == nullptr || output_tensors == nullptr) {
-    return TF_INVALID_ARGUMENT;
-  }
-
+                   std::size_t noutputs, TF_Operation* const* operations,
+                   std::size_t noperations, TF_Status* status) {
   MAKE_SCOPE_EXIT(delete_status) { TF_DeleteStatus(status); };
   if (status == nullptr) {
     status = TF_NewStatus();
   } else {
     delete_status.dismiss();
   }
-
   TF_SessionRun(
       session,
       nullptr,  // Run options.
@@ -303,7 +298,7 @@ TF_Code RunSession(TF_Session* session, const TF_Output* inputs,
       outputs, output_tensors,
       static_cast<int>(noutputs),  // Output tensors, output tensor values,
                                    // number of outputs.
-      nullptr, 0,                  // Target operations, number of targets.
+      operations, noperations,     // Target operations, number of targets.
       nullptr,                     // Run metadata.
       status                       // Output status.
   );
@@ -314,10 +309,14 @@ TF_Code RunSession(TF_Session* session, const TF_Output* inputs,
 TF_Code RunSession(TF_Session* session, const std::vector<TF_Output>& inputs,
                    const std::vector<TF_Tensor*>& input_tensors,
                    const std::vector<TF_Output>& outputs,
-                   std::vector<TF_Tensor*>& output_tensors, TF_Status* status) {
+                   std::vector<TF_Tensor*>& output_tensors,
+                   const std::vector<TF_Operation*>& operations,
+                   TF_Status* status) {
   return RunSession(session, inputs.data(), input_tensors.data(),
                     input_tensors.size(), outputs.data(), output_tensors.data(),
-                    output_tensors.size(), status);
+                    output_tensors.size(),
+                    operations.size() ? operations.data() : nullptr,
+                    operations.size(), status);
 }
 
 TF_Tensor* CreateEmptyTensor(TF_DataType data_type, const std::int64_t* dims,

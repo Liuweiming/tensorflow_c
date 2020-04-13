@@ -70,7 +70,8 @@ std::vector<std::string> Model::get_operations() const {
 }
 
 void Model::run(const std::vector<Tensor*>& inputs,
-                const std::vector<Tensor*>& outputs) {
+                const std::vector<Tensor*>& outputs,
+                const std::vector<TF_Operation*>& operations) {
   // Get input operations
   std::vector<TF_Output> io(inputs.size());
   std::transform(inputs.begin(), inputs.end(), io.begin(),
@@ -88,35 +89,16 @@ void Model::run(const std::vector<Tensor*>& inputs,
 
   // Get output values
   std::vector<TF_Tensor*> ov(outputs.size());
-
-  auto tf_code = tf_utils::RunSession(session, io, iv, oo, ov, status);
+  auto tf_code =
+      tf_utils::RunSession(session, io, iv, oo, ov, operations, status);
+  if (tf_code != TF_OK) {
+    throw std::runtime_error(tf_utils::CodeToString(tf_code));
+  }
   // Save results on outputs
   // must not delete ov, as it will be used by outputs.
   for (std::size_t i = 0; i < outputs.size(); i++) {
     outputs[i]->set_tensor(ov[i]);
   }
-}
-
-void Model::run(Tensor& input, Tensor& output) { run(&input, &output); }
-
-void Model::run(const std::vector<Tensor*>& inputs, Tensor& output) {
-  run(inputs, &output);
-}
-
-void Model::run(Tensor& input, const std::vector<Tensor*>& outputs) {
-  run(&input, outputs);
-}
-
-void Model::run(Tensor* input, Tensor* output) {
-  run(std::vector<Tensor*>({input}), std::vector<Tensor*>({output}));
-}
-
-void Model::run(const std::vector<Tensor*>& inputs, Tensor* output) {
-  run(inputs, std::vector<Tensor*>({output}));
-}
-
-void Model::run(Tensor* input, const std::vector<Tensor*>& outputs) {
-  run(std::vector<Tensor*>({input}), outputs);
 }
 
 void Model::error_check(bool condition, const std::string& error) const {

@@ -25,7 +25,7 @@ class Model;
 
 class Tensor {
  public:
-  Tensor(const Model &model, const std::string &operation);
+  Tensor(TF_Graph *graph, const std::string &operation);
 
   Tensor(const Tensor &tensor) = delete;
   Tensor(Tensor &&tensor) = default;
@@ -69,15 +69,19 @@ class Tensor {
     auto exp_size = std::abs(std::accumulate(shape.begin(), shape.end(), 1,
                                              std::multiplies<int64_t>()));
     actual_shape = shape;
-    std::replace_if(
-        actual_shape.begin(), actual_shape.end(),
-        [](int64_t r) { return r == -1; }, new_data.size() / exp_size);
+    std::replace_if(actual_shape.begin(), actual_shape.end(),
+                    [](int64_t r) { return r == -1; },
+                    new_data.size() / exp_size);
     tf_tensor = tf_utils::CreateTensor(type, actual_shape, new_data);
+    for (auto &as : actual_shape) {
+      std::cout << as << " ";
+    }
+    std::cout << "]" << std::endl;
     if (tf_tensor == nullptr) {
       throw std::runtime_error("tf_utils::CreateTensor error");
     }
   }
-  
+
   // set tf_tensor from new_tensor.
   // useful for accessing data from session out.
   // should only be called by Model.
