@@ -1,6 +1,7 @@
-//
-// Created by sergio on 12/05/19.
-//
+// Adapted from serizba/cppflow https://github.com/serizba/cppflow
+// First created by sergio on 12/05/19.
+// Reconstructed by Weiming Liu in 04/05/20.
+
 
 #include "model.h"
 #include "tf_utils.h"

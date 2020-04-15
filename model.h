@@ -1,6 +1,6 @@
-//
-// Created by sergio on 12/05/19.
-//
+// Adapted from serizba/cppflow https://github.com/serizba/cppflow
+// First created by sergio on 12/05/19.
+// Reconstructed by Weiming Liu in 04/05/20.
 
 #ifndef TENSORFLOW_C_MODEL_H
 #define TENSORFLOW_C_MODEL_H

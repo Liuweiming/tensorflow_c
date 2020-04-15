@@ -29,6 +29,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// adapted from https://github.com/Neargye/hello_tf_c_api
+// adapted by Weiming Liu 04/15/2020.
+
 #ifndef NEARGYE_SCOPE_GUARD_HPP
 #define NEARGYE_SCOPE_GUARD_HPP
 

@@ -20,6 +20,9 @@
 // OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// adapted from https://github.com/Neargye/hello_tf_c_api
+// adapted by Weiming Liu 04/15/2020.
+
 #include "tf_utils.h"
 
 #include <algorithm>
