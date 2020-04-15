@@ -3,8 +3,6 @@
 //
 
 #include "model.h"
-
-#include "tensor.h"
 #include "tf_utils.h"
 
 namespace tf_cpp {
@@ -67,38 +65,6 @@ std::vector<std::string> Model::get_operations() const {
   }
 
   return result;
-}
-
-void Model::run(const std::vector<Tensor*>& inputs,
-                const std::vector<Tensor*>& outputs,
-                const std::vector<TF_Operation*>& operations) {
-  // Get input operations
-  std::vector<TF_Output> io(inputs.size());
-  std::transform(inputs.begin(), inputs.end(), io.begin(),
-                 [](const Tensor* i) { return i->op; });
-
-  // Get input values
-  std::vector<TF_Tensor*> iv(inputs.size());
-  std::transform(inputs.begin(), inputs.end(), iv.begin(),
-                 [](const Tensor* i) { return i->tf_tensor; });
-
-  // Get output operations
-  std::vector<TF_Output> oo(outputs.size());
-  std::transform(outputs.begin(), outputs.end(), oo.begin(),
-                 [](const Tensor* o) { return o->op; });
-
-  // Get output values
-  std::vector<TF_Tensor*> ov(outputs.size());
-  auto tf_code =
-      tf_utils::RunSession(session, io, iv, oo, ov, operations, status);
-  if (tf_code != TF_OK) {
-    throw std::runtime_error(tf_utils::CodeToString(tf_code));
-  }
-  // Save results on outputs
-  // must not delete ov, as it will be used by outputs.
-  for (std::size_t i = 0; i < outputs.size(); i++) {
-    outputs[i]->set_tensor(ov[i]);
-  }
 }
 
 void Model::error_check(bool condition, const std::string& error) const {
