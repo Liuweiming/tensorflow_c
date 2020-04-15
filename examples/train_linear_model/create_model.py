@@ -12,7 +12,7 @@ def example_1():
 
     # Optimize loss
     loss = tf.reduce_mean(tf.square(y_ - y), name='loss')
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
     train_op = optimizer.minimize(loss, name='train')
 
     init = tf.global_variables_initializer()

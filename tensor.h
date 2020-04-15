@@ -138,10 +138,29 @@ class Tensor {
     return at<T>(std::vector<int>{ix0}, rest...);
   }
 
-  // get scale tensor value.
   template <typename T>
   T &at() {
     return at<T>(std::vector<int>());
+  }
+
+  template <typename T>
+  T &at(int idx0) {
+    return at<T>(std::vector<int>{idx0});
+  }
+
+  template <typename T>
+  T &at(int idx0, int idx1) {
+    return at<T>(std::vector<int>{idx0, idx1});
+  }
+
+  template <typename T>
+  T &at(int idx0, int idx1, int idx2) {
+    return at<T>(std::vector<int>{idx0, idx1, idx2});
+  }
+
+  template <typename T>
+  T &at(int idx0, int idx1, int idx2, int idx3) {
+    return at<T>(std::vector<int>{idx0, idx1, idx2, idx3});
   }
 
   std::vector<int64_t> get_shape() { return tf_shape; }
