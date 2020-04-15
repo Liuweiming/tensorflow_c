@@ -23,9 +23,9 @@ int main() {
 
   // Create Tensors
   Tensor input(m.get_graph(), "input", {1, 784}, TF_DOUBLE);
-  std::cout << tf_cpp::to_string(input.get_shape()) << std::endl;
+  std::cout << tf_cpp::to_string(input.shape()) << std::endl;
   Tensor prediction(m.get_graph(), "prediction", {1, 10}, TF_DOUBLE);
-  std::cout << tf_cpp::to_string(prediction.get_shape()) << std::endl;
+  std::cout << tf_cpp::to_string(prediction.shape()) << std::endl;
 
   // Read image
   for (int i = 0; i < 10; i++) {
@@ -51,7 +51,7 @@ int main() {
 
     // Get tensor with predictions
     std::vector<double> result;
-    std::cout << tf_cpp::to_string(prediction.get_shape()) << std::endl;
+    std::cout << tf_cpp::to_string(prediction.shape()) << std::endl;
     for (std::size_t i = 0; i != 10; ++i) {
       result.push_back(prediction.at<double>(0, i));
     }

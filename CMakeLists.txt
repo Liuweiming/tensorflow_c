@@ -8,7 +8,7 @@ set (CMAKE_CXX_FLAGS "-Wno-everything")
 
 add_library(tensorflow_c OBJECT
     scope_guard.h tf_utils.h tf_utils.cc
-    model.h model.cc tensor.h)
+    model.h model.cc tensor.h tensor.cc)
 target_include_directories(tensorflow_c PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 link_libraries(tensorflow)
 
