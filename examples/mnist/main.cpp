@@ -43,7 +43,7 @@ int main() {
 
     // Feed data to input tensor
     for (std::size_t i = 0; i != img_data.size(); ++i) {
-      input.at<double>({0, i}) = img_data[i];
+      input.at<double>(0, i) = img_data[i];
     }
 
     // Run and show predictions
@@ -53,7 +53,7 @@ int main() {
     std::vector<double> result;
     std::cout << tf_cpp::to_string(prediction.get_shape()) << std::endl;
     for (std::size_t i = 0; i != 10; ++i) {
-      result.push_back(prediction.at<double>({0, i}));
+      result.push_back(prediction.at<double>(0, i));
     }
 
     // Maximum prob

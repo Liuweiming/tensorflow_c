@@ -54,15 +54,15 @@ int main() {
                           input_vals_1.end());
   input_vals_batch.insert(input_vals_batch.end(), input_vals_2.begin(),
                           input_vals_2.end());
-  // memcpy((&input.at<float>({0})), input_vals_1.data(),
-  //        sizeof(float) * input_vals_1.size());
-  // memcpy((&input.at<float>({1})), input_vals_2.data(),
-  //        sizeof(float) * input_vals_2.size());
-  memcpy((&input.at<float>({0})), input_vals_batch.data(),
-         sizeof(float) * input_vals_batch.size());
+  memcpy((&input.at<float>(0)), input_vals_1.data(),
+         sizeof(float) * input_vals_1.size());
+  memcpy((&input.at<float>(1)), input_vals_2.data(),
+         sizeof(float) * input_vals_2.size());
+  // memcpy((&input.at<float>({0})), input_vals_batch.data(),
+  //        sizeof(float) * input_vals_batch.size());
   model.run({&input}, {&out});
 
-  std::vector<float> result(&out.at<float>({0}), &out.at<float>({0}) + 8);
+  std::vector<float> result(&out.at<float>(0), &out.at<float>(0) + 8);
   std::cout << "Output vals_1: " << result[0] << ", " << result[1] << ", "
             << result[2] << ", " << result[3] << std::endl;
   std::cout << "Output vals_2: " << result[4] << ", " << result[5] << ", "

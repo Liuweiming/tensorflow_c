@@ -90,8 +90,9 @@ class Tensor {
   }
 
   // access tf_tensor as type T.
+  // access by vector or {ix0, ix1, ... ixn}.
   template <typename T>
-  T &at(const std::vector<std::size_t> &indexs) {
+  T &at(const std::vector<int> &indexs) {
     if (tf_tensor == nullptr) {
       create_tensor<T>();
     }
@@ -105,7 +106,7 @@ class Tensor {
           "can not access tf_tensor in this type. tf_tensor type is " +
           tf_utils::DataTypeToString(tf_type) + ".");
     }
-    std::size_t linear_index = 0;
+    int linear_index = 0;
     for (int i = 0; i != indexs.size(); ++i) {
       if (indexs[i] >= tf_shape[i]) {
         throw std::runtime_error(
@@ -114,7 +115,7 @@ class Tensor {
             std::to_string(indexs[i]) + " .vs " + std::to_string(tf_shape[i]) +
             "].");
       }
-      uint64_t prod = 1;
+      int prod = 1;
       for (int j = i + 1; j < tf_shape.size(); ++j) {
         prod *= tf_shape[j];
       }
@@ -124,15 +125,23 @@ class Tensor {
   }
 
   template <typename T, typename... Types>
-  T &at(const std::vector<std::size_t> &indexs, std::size_t ixn,
-        Types... rest) {
+  T &at(std::vector<int> indexs, int ixn, Types... rest) {
     indexs.push_back(ixn);
-    return at(indexs, ret);
+    // std::cout << to_string(indexs) << std::endl;
+    return at<T>(indexs, rest...);
   }
 
+  // access tf_tensor by (ix0, ix1, ... ixn)
   template <typename T, typename... Types>
-  T &at(std::size_t ix0, Types... rest) {
-    return at({ix0}, ret);
+  T &at(int ix0, Types... rest) {
+    // std::cout << ix0 << std::endl;
+    return at<T>(std::vector<int>{ix0}, rest...);
+  }
+
+  // get scale tensor value.
+  template <typename T>
+  T &at() {
+    return at<T>(std::vector<int>());
   }
 
   std::vector<int64_t> get_shape() { return tf_shape; }

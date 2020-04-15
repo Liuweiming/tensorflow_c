@@ -26,13 +26,13 @@ int main() {
   std::vector<float> data(100);
   std::iota(data.begin(), data.end(), 0);
   for (std::size_t i = 0; i != data.size(); ++i) {
-    input_a.at<float>({0, i}) = data[i];
-    input_b.at<float>({0, i}) = data[i];
+    input_a.at<float>(0, i) = data[i];
+    input_b.at<float>(0, i) = data[i];
   }
 
   model.run({&input_a, &input_b}, {&output});
   for (std::size_t i = 0; i != data.size(); ++i) {
-    std::cout << output.at<float>({0, i}) << " ";
+    std::cout << output.at<float>(0, i) << " ";
   }
   std::cout << std::endl;
 }

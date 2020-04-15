@@ -22,10 +22,10 @@ int main() {
   TF_Operation *init = TF_GraphOperationByName(model.get_graph(), "init");
   TF_Operation *train = TF_GraphOperationByName(model.get_graph(), "train");
 
-  Tensor input{model.get_graph(), "input"};
-  Tensor label{model.get_graph(), "target"};
-  Tensor predict{model.get_graph(), "output"};
-  Tensor loss{model.get_graph(), "loss"};
+  Tensor input(model.get_graph(), "input", {3, 1, 1}, TF_FLOAT);
+  Tensor label(model.get_graph(), "target", {3, 1, 1}, TF_FLOAT);
+  Tensor predict(model.get_graph(), "output", {3, 1, 1}, TF_FLOAT);
+  Tensor loss(model.get_graph(), "loss", {}, TF_FLOAT);
 
   model.run_operation(init);
 
@@ -39,26 +39,28 @@ int main() {
   }
   std::cout << "]" << std::endl;
 
-  input.set_data(train_inputs);
-  label.set_data(train_labels);
+  for (int i = 0; i != 3; ++i) {
+    input.at<float>(i, 0, 0) = train_inputs[i];
+    label.at<float>(i, 0, 0) = train_labels[i];
+  }
 
   std::cout << "before training" << std::endl;
   model.run({&input}, {&predict});
-  for (float f : predict.get_data<float>()) {
-    std::cout << f << " ";
+  for (int i = 0; i != 3; ++i) {
+    std::cout << predict.at<float>(i, 0, 0) << " ";
   }
 
-  for (int iter = 0; iter != 10; ++iter) {
+  for (int iter = 0; iter != 100; ++iter) {
     std::cout << "iteration " << iter << std::endl;
     model.run({&input, &label}, {&predict, &loss}, {train});
-    float train_loss = loss.get_data<float>()[0];
+    float train_loss = loss.at<float>();
     std::cout << "loss: " << train_loss << std::endl;
     for (float f : train_labels) {
       std::cout << f << " ";
     }
     std::cout << std::endl;
-    for (float f : predict.get_data<float>()) {
-      std::cout << f << " ";
+    for (int i = 0; i != 3; ++i) {
+      std::cout << predict.at<float>(i, 0, 0) << " ";
     }
     std::cout << std::endl;
   }
