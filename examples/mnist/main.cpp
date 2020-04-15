@@ -22,8 +22,10 @@ int main() {
   std::cout << "-------------------" << std::endl;
 
   // Create Tensors
-  Tensor input(m.get_graph(), "input");
-  Tensor prediction(m.get_graph(), "prediction");
+  Tensor input(m.get_graph(), "input", {1, 784}, TF_DOUBLE);
+  std::cout << tf_cpp::to_string(input.shape()) << std::endl;
+  Tensor prediction(m.get_graph(), "prediction", {1, 10}, TF_DOUBLE);
+  std::cout << tf_cpp::to_string(prediction.shape()) << std::endl;
 
   // Read image
   for (int i = 0; i < 10; i++) {
@@ -40,13 +42,19 @@ int main() {
     img_data.assign(scaled.begin<double>(), scaled.end<double>());
 
     // Feed data to input tensor
-    input.set_data(img_data);
+    for (std::size_t i = 0; i != img_data.size(); ++i) {
+      input.at<double>(0, i) = img_data[i];
+    }
 
     // Run and show predictions
     m.run({&input}, {&prediction});
 
     // Get tensor with predictions
-    auto result = prediction.get_data<double>();
+    std::vector<double> result;
+    std::cout << tf_cpp::to_string(prediction.shape()) << std::endl;
+    for (std::size_t i = 0; i != 10; ++i) {
+      result.push_back(prediction.at<double>(0, i));
+    }
 
     // Maximum prob
     auto max_result = std::max_element(result.begin(), result.end());

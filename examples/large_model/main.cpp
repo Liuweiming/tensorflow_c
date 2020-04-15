@@ -14,8 +14,8 @@ int main() {
     std::cout << op << std::endl;
   }
   std::cout << "-------------------" << std::endl;
-  Tensor input(model.get_graph(), "input_4");
-  Tensor out(model.get_graph(), "output_node0");
+  Tensor input(model.get_graph(), "input_4", {2, 5, 12}, TF_FLOAT);
+  Tensor out(model.get_graph(), "output_node0", {2, 4}, TF_FLOAT);
 
   const std::vector<std::int64_t> input_dims = {2, 5, 12};  // batch 2
 
@@ -54,11 +54,15 @@ int main() {
                           input_vals_1.end());
   input_vals_batch.insert(input_vals_batch.end(), input_vals_2.begin(),
                           input_vals_2.end());
-
-  input.set_data(input_vals_batch);
+  memcpy((&input.at<float>(0)), input_vals_1.data(),
+         sizeof(float) * input_vals_1.size());
+  memcpy((&input.at<float>(1)), input_vals_2.data(),
+         sizeof(float) * input_vals_2.size());
+  // memcpy((&input.at<float>({0})), input_vals_batch.data(),
+  //        sizeof(float) * input_vals_batch.size());
   model.run({&input}, {&out});
 
-  auto result = out.get_data<float>();
+  std::vector<float> result(&out.at<float>(0), &out.at<float>(0) + 8);
   std::cout << "Output vals_1: " << result[0] << ", " << result[1] << ", "
             << result[2] << ", " << result[3] << std::endl;
   std::cout << "Output vals_2: " << result[4] << ", " << result[5] << ", "

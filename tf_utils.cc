@@ -20,6 +20,9 @@
 // OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// adapted from https://github.com/Neargye/hello_tf_c_api
+// adapted by Weiming Liu 04/15/2020.
+
 #include "tf_utils.h"
 
 #include <algorithm>
@@ -522,7 +525,7 @@ void DeleteSessionOptions(TF_SessionOptions* options) {
   }
 }
 
-const char* DataTypeToString(TF_DataType data_type) {
+std::string DataTypeToString(TF_DataType data_type) {
   switch (data_type) {
     case TF_FLOAT:
       return "TF_FLOAT";
@@ -575,7 +578,7 @@ const char* DataTypeToString(TF_DataType data_type) {
   }
 }
 
-const char* CodeToString(TF_Code code) {
+std::string CodeToString(TF_Code code) {
   switch (code) {
     case TF_OK:
       return "TF_OK";

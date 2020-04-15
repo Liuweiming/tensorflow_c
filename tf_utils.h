@@ -20,6 +20,9 @@
 // OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// adapted from https://github.com/Neargye/hello_tf_c_api
+// adapted by Weiming Liu 04/15/2020.
+
 #ifndef TENSORFLOW_C_TF_UTTILS_H
 #define TENSORFLOW_C_TF_UTTILS_H
 
@@ -161,9 +164,9 @@ TF_SessionOptions* CreateSessionOptions(
 
 void DeleteSessionOptions(TF_SessionOptions* options);
 
-const char* DataTypeToString(TF_DataType data_type);
+std::string DataTypeToString(TF_DataType data_type);
 
-const char* CodeToString(TF_Code code);
+std::string CodeToString(TF_Code code);
 
 }  // namespace tf_utils
 
