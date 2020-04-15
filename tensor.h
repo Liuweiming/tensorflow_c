@@ -25,9 +25,6 @@
 namespace tf_cpp {
 
 class Model;
-using tensor_type =
-    std::variant<float, double, int8_t, int16_t, int32_t, int64_t, uint8_t,
-                 uint16_t, uint32_t, uint64_t, bool>;
 
 template <typename T>
 std::string to_string(const std::vector<T> &vec) {
@@ -38,7 +35,6 @@ std::string to_string(const std::vector<T> &vec) {
   return ret;
 }
 
-template <typename T>
 class Tensor {
  public:
   // shape and type are used to verify the shape and dtype of tf_tensor.
@@ -59,17 +55,13 @@ class Tensor {
           tf_utils::DataTypeToString(dtype) + " vs. " +
           tf_utils::DataTypeToString(tf_type) + "].");
     }
-    if (deduce_type() != tf_type) {
-      throw std::runtime_error(
-          "can not access tf_tensor in this type. tf_tensor type is " +
-          tf_utils::DataTypeToString(tf_type) + ".");
-    }
     tf_shape = std::vector<int64_t>(dims, dims + n_dims);
     if (shape.size() != n_dims) {
       throw std::runtime_error(
-          std::string(
-              "data's dimension is incompatible with tf_tensor dimensions. [") +
+          std::string("data's dimension is incompatible with tf_tensor "
+                      "dimensions: [") +
           std::to_string(shape.size()) + " vs. " + std::to_string(n_dims) +
+          "]," + "shape: [" + to_string(shape) + " vs. " + to_string(tf_shape) +
           "].");
     }
     for (int i = 0; i != n_dims; ++i) {
@@ -98,14 +90,20 @@ class Tensor {
   }
 
   // access tf_tensor as type T.
-  T &operator()(const std::vector<std::size_t> &indexs) {
+  template <typename T>
+  T &at(const std::vector<std::size_t> &indexs) {
     if (tf_tensor == nullptr) {
-      create_tensor();
+      create_tensor<T>();
     }
     if (indexs.size() > tf_shape.size()) {
       throw std::runtime_error("indexs dimension is larger than tf_tensor. [" +
                                std::to_string(indexs.size()) + " vs. " +
                                std::to_string(tf_shape.size()) + "].");
+    }
+    if (deduce_type<T>() != tf_type) {
+      throw std::runtime_error(
+          "can not access tf_tensor in this type. tf_tensor type is " +
+          tf_utils::DataTypeToString(tf_type) + ".");
     }
     std::size_t linear_index = 0;
     for (int i = 0; i != indexs.size(); ++i) {
@@ -116,11 +114,25 @@ class Tensor {
             std::to_string(indexs[i]) + " .vs " + std::to_string(tf_shape[i]) +
             "].");
       }
+      uint64_t prod = 1;
       for (int j = i + 1; j < tf_shape.size(); ++j) {
-        linear_index += indexs[i] * tf_shape[j];
+        prod *= tf_shape[j];
       }
+      linear_index += indexs[i] * prod;
     }
     return *(static_cast<T *>(TF_TensorData(tf_tensor)) + linear_index);
+  }
+
+  template <typename T, typename... Types>
+  T &at(const std::vector<std::size_t> &indexs, std::size_t ixn,
+        Types... rest) {
+    indexs.push_back(ixn);
+    return at(indexs, ret);
+  }
+
+  template <typename T, typename... Types>
+  T &at(std::size_t ix0, Types... rest) {
+    return at({ix0}, ret);
   }
 
   std::vector<int64_t> get_shape() { return tf_shape; }
@@ -128,6 +140,7 @@ class Tensor {
  private:
   // create tf_tensor, should be called only once.
   // could be called to reset the shape of tf_tensor.
+  template <typename T>
   void create_tensor() {
     if (tf_tensor != nullptr) {
       TF_DeleteTensor(tf_tensor);
@@ -143,6 +156,7 @@ class Tensor {
     }
   }
 
+  template <typename T>
   TF_DataType deduce_type() {
     // we don't support bool type, please do not use TF_BOOL in tensorflow.
     // (std::is_same<T, bool>::value) return TF_BOOL;
@@ -189,11 +203,12 @@ class Tensor {
     }
     tf_shape.clear();
     if (n_dims > 0) {
-      tf_shape.reserve(n_dims);
+      tf_shape.resize(n_dims);
       for (int i = 0; i < n_dims; i++) {
         tf_shape[i] = TF_Dim(tf_tensor, i);
       }
     }
+    // std::cout << n_dims << " " << to_string(tf_shape) << std::endl;
   }
 
  private:

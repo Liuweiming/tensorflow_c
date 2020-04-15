@@ -19,20 +19,20 @@ int main() {
   }
   std::cout << "-------------------" << std::endl;
 
-  Tensor<float> input_a(model.get_graph(), "input_a", {100, 1}, TF_FLOAT);
-  Tensor<float> input_b(model.get_graph(), "input_b", {100, 1}, TF_FLOAT);
-  Tensor<float> output(model.get_graph(), "result", {100, 1}, TF_FLOAT);
+  Tensor input_a(model.get_graph(), "input_a", {1, 100}, TF_FLOAT);
+  Tensor input_b(model.get_graph(), "input_b", {1, 100}, TF_FLOAT);
+  Tensor output(model.get_graph(), "result", {1, 100}, TF_FLOAT);
 
   std::vector<float> data(100);
   std::iota(data.begin(), data.end(), 0);
   for (std::size_t i = 0; i != data.size(); ++i) {
-    input_a({i}) = data[i];
-    input_b({i}) = data[i];
+    input_a.at<float>({0, i}) = data[i];
+    input_b.at<float>({0, i}) = data[i];
   }
 
   model.run({&input_a, &input_b}, {&output});
   for (std::size_t i = 0; i != data.size(); ++i) {
-    std::cout << output({i}) << " ";
+    std::cout << output.at<float>({0, i}) << " ";
   }
   std::cout << std::endl;
 }

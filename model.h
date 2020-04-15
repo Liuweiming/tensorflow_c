@@ -40,8 +40,8 @@ class Model {
   // after that, the users can access outputs' data.
   // we does not need to know the type of Tensors, so we use a std::variant
   // tensor_type
-  void run(const std::vector<Tensor<tensor_type>*>& inputs,
-           const std::vector<Tensor<tensor_type>*>& outputs,
+  void run(const std::vector<Tensor*>& inputs,
+           const std::vector<Tensor*>& outputs,
            const std::vector<TF_Operation*>& operations = {}) {
     // Get input operations
     std::vector<TF_Output> io(inputs.size());
