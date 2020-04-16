@@ -49,6 +49,9 @@ TF_Graph* LoadGraph(const char* graph_path, const char* checkpoint_prefix,
 
 TF_Graph* LoadGraph(const char* graph_path, TF_Status* status = nullptr);
 
+TF_Code DumpGraph(TF_Graph* graph, TF_Session* session, const char* graph_path,
+                  TF_Status* status);
+
 TF_Code Restore(TF_Graph* graph, TF_Session* session,
                 const char* checkpoint_prefix, TF_Status* status);
 

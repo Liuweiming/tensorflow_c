@@ -2,7 +2,6 @@
 // First created by sergio on 12/05/19.
 // Reconstructed by Weiming Liu in 04/05/20.
 
-
 #include "model.h"
 #include "tf_utils.h"
 
@@ -50,6 +49,14 @@ void Model::save(const std::string& ckpt) {
 
 void Model::restore(const std::string& ckpt) {
   auto tf_code = tf_utils::Restore(graph, session, ckpt.c_str(), status);
+  if (tf_code != TF_OK) {
+    throw std::runtime_error("tf_utils::Restore error");
+  }
+}
+
+void Model::save_graph(const std::string& graph_path) {
+  auto tf_code =
+      tf_utils::DumpGraph(graph, session, graph_path.c_str(), status);
   if (tf_code != TF_OK) {
     throw std::runtime_error("tf_utils::Restore error");
   }

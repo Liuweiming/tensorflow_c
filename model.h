@@ -33,6 +33,7 @@ class Model {
   TF_Graph* get_graph() { return graph; }
   void restore(const std::string& ckpt);
   void save(const std::string& ckpt);
+  void save_graph(const std::string& graph_path);
   std::vector<std::string> get_operations() const;
 
   // inputs should containts datas for evaluating.

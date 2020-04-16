@@ -71,6 +71,19 @@ static TF_Buffer* ReadBufferFromFile(const char* file) {
   return buf;
 }
 
+static bool WriteBufferFromFile(TF_Buffer* buffer, const char* file) {
+  std::ofstream f(file, std::ios::out | std::ios::binary);
+  SCOPE_EXIT { f.close(); };
+  if (f.fail() || !f.is_open()) {
+    return false;
+  }
+  if (f.write(static_cast<const char*>(buffer->data), buffer->length).fail()) {
+    return false;
+  }
+
+  return true;
+}
+
 TF_Tensor* ScalarStringTensor(const char* str, TF_Status* status) {
   auto str_len = std::strlen(str);
   auto nbytes =
@@ -90,7 +103,7 @@ TF_Graph* LoadGraph(const char* graph_path, const char* checkpoint_prefix,
     return nullptr;
   }
 
-  auto buffer = ReadBufferFromFile(graph_path);
+  TF_Buffer* buffer = ReadBufferFromFile(graph_path);
   if (buffer == nullptr) {
     return nullptr;
   }
@@ -152,6 +165,33 @@ TF_Graph* LoadGraph(const char* graph_path, const char* checkpoint_prefix,
   }
 
   return graph;
+}
+
+TF_Code DumpGraph(TF_Graph* graph, TF_Session* session, const char* graph_path,
+                  TF_Status* status) {
+  if (graph_path == nullptr) {
+    return TF_INVALID_ARGUMENT;
+  }
+
+  TF_Buffer* buffer = TF_NewBuffer();
+  if (buffer == nullptr) {
+    return TF_UNAVAILABLE;
+  }
+
+  MAKE_SCOPE_EXIT(delete_status) { TF_DeleteStatus(status); };
+  if (status == nullptr) {
+    status = TF_NewStatus();
+  } else {
+    delete_status.dismiss();
+  }
+
+  TF_GraphToGraphDef(graph, buffer, status);
+  if (!WriteBufferFromFile(buffer, graph_path)) {
+    TF_DeleteBuffer(buffer);
+    return TF_UNAVAILABLE;
+  }
+  TF_DeleteBuffer(buffer);
+  return TF_OK;
 }
 
 TF_Code Restore(TF_Graph* graph, TF_Session* session,
