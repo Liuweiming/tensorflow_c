@@ -8,7 +8,6 @@
 #include <tensorflow/c/c_api.h>
 
 #include <algorithm>
-#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -21,7 +20,8 @@ namespace tf_cpp {
 
 class Model {
  public:
-  explicit Model(const std::string&);
+  explicit Model(const std::string& model_filename,
+                 const std::string& device = "/cpu:0");
 
   Model(const Model& model) = delete;
   Model(Model&& model) = default;
@@ -80,6 +80,7 @@ class Model {
   TF_Graph* graph;
   TF_SessionOptions* opts;
   TF_Session* session;
+  std::string device;
 
   // Read a file from a string
   static TF_Buffer* read(const std::string&);

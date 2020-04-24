@@ -7,8 +7,12 @@
 
 namespace tf_cpp {
 
-Model::Model(const std::string& model_filename)
-    : status(nullptr), graph(nullptr), opts(nullptr), session(nullptr) {
+Model::Model(const std::string& model_filename, const std::string& device)
+    : device(device),
+      status(nullptr),
+      graph(nullptr),
+      opts(nullptr),
+      session(nullptr) {
   status = TF_NewStatus();
   graph = tf_utils::LoadGraph(model_filename.c_str(), status);
   if (graph == nullptr) {
@@ -16,7 +20,7 @@ Model::Model(const std::string& model_filename)
   }
 
   // Create the session.
-  opts = tf_utils::CreateSessionOptions(1, 1, status);
+  opts = tf_utils::CreateSessionOptions(0.2, status);
   if (opts == nullptr) {
     throw std::runtime_error("tf_utils::CreateSessionOptions error");
   }
