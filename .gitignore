@@ -405,6 +405,5 @@ healthchecksdb
 MigrationBackup/
 
 # tensorflow model
-*.pb
 *.meta
 checkpoint/
