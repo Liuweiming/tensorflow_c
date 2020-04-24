@@ -11,7 +11,7 @@
 using namespace tf_cpp;
 
 int main() {
-  Model model("/mnt/c/Users/liuwe/Documents/project/tensorflow_c/graph.pb");
+  Model model("graph.pb");
 
   std::cout << "operations: -----------" << std::endl;
   for (auto &op : model.get_operations()) {
